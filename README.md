@@ -87,12 +87,12 @@ Aplikasi dapat dibuka di browser melalui:
 
 ---
 
-## 🏛️ Struktur 7 Rombongan Belajar (Rombel) Awal
-1. **Kelas 1** - Wali Kelas: Ibu Siti Rohmah, S.Pd
-2. **Kelas 2A** - Wali Kelas: Bapak Ahmad Fauzi, S.Pd
-3. **Kelas 2B** - Wali Kelas: Ibu Nurul Hidayah, S.Pd
-4. **Kelas 3** - Wali Kelas: Ibu Dewi Sartika, S.Pd
-5. **Kelas 4** - Wali Kelas: Bapak Budi Santoso, S.Pd
-6. **Kelas 5** - Wali Kelas: Ibu Eka Prasetya, S.Pd
-7. **Kelas 6** - Wali Kelas: Bapak Hendra Gunawan, S.Pd
+## 🏛️ Struktur 7 Rombongan Belajar (Rombel) Resmi
+1. **Kelas 1** - Wali Kelas: Rizky Yulianti, S.Pd.SD. (35 Siswa)
+2. **Kelas 2A** - Wali Kelas: Elis Susilawati, S.Pd. (23 Siswa)
+3. **Kelas 2B** - Wali Kelas: Ahmad, S.Pd. (23 Siswa)
+4. **Kelas 3** - Wali Kelas: Nana Setiana, S.Pd. (33 Siswa)
+5. **Kelas 4** - Wali Kelas: Iin Asminah, S.Pd. (40 Siswa)
+6. **Kelas 5** - Wali Kelas: Gina Rahmania Sari, S.Pd. (40 Siswa)
+7. **Kelas 6** - Wali Kelas: Sri Yulinawati, S.Pd. (30 Siswa)
 
