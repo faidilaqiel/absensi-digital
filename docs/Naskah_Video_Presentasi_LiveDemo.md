@@ -199,3 +199,4 @@
    - Tab 1: Aplikasi berjalan di `http://localhost:5000`
    - Tab 2: Repositori GitHub Anda di `https://github.com/faidilaqiel/absensi-digital`
 3. **Praktekkan Scan Kartu Nyata:** Siapkan 1 file kartu QR di layar HP atau cetak kertas untuk discan ke kamera laptop saat bagian Demo Scan QR.
+
