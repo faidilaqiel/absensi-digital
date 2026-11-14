@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+client/node_modules/
+
+# Production build outputs
+client/dist/
+
+# Environment variables
+.env
+.env.local
+
+# SQLite temporary WAL files (opsional, database db tetap di-commit atau dijadikan seed)
+*.db-shm
+*.db-wal
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS specific files
+.DS_Store
+Thumbs.db
+

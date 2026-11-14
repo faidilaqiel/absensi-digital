@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #F8F9FA;
+    color: #1A202C;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Dark mode root styles */
+  .dark body {
+    background-color: #0F172A;
+    color: #F1F5F9;
+  }
+}
+
+.font-serif-display {
+  font-family: 'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Print styling */
+@media print {
+  @page {
+    margin: 1cm;
+  }
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .print-area, .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
+
+/* =======================================================
+   DARK MODE COMPREHENSIVE OVERRIDES
+   ======================================================= */
+.dark {
+  color-scheme: dark;
+}
+
+.dark .bg-slate-50,
+.dark .bg-\[\#F8F9FA\] {
+  background-color: #0B1120 !important;
+}
+
+.dark .bg-white {
+  background-color: #1E293B !important;
+  color: #F1F5F9 !important;
+}
+
+.dark .bg-white\/95 {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+.dark .bg-slate-100,
+.dark .bg-slate-200\/80 {
+  background-color: #334155 !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-\[\#111827\],
+.dark .text-\[\#1A202C\] {
+  color: #F8FAFC !important;
+}
+
+.dark .text-slate-700 {
+  color: #E2E8F0 !important;
+}
+
+.dark .text-slate-600 {
+  color: #CBD5E1 !important;
+}
+
+.dark .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+.dark .text-slate-400 {
+  color: #64748B !important;
+}
+
+/* Inputs & selects in Dark Mode */
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Table styling in Dark Mode */
+.dark thead tr,
+.dark tr.bg-slate-50 {
+  background-color: #0F172A !important;
+}
+
+.dark thead th {
+  color: #94A3B8 !important;
+  border-color: #334155 !important;
+}
+
+.dark tbody tr {
+  border-color: #1E293B !important;
+}
+
+.dark tbody tr:hover,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover {
+  background-color: #273549 !important;
+}
+
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #334155 !important;
+}
+
+/* Sidebar navigation in Dark Mode */
+.dark aside {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+.dark nav.lg\:hidden {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+/* Card badges & alerts */
+.dark .bg-emerald-50 {
+  background-color: rgba(6, 78, 59, 0.3) !important;
+  color: #6EE7B7 !important;
+}
+
+.dark .bg-amber-50 {
+  background-color: rgba(120, 53, 15, 0.3) !important;
+  color: #FCD34D !important;
+}
+
+.dark .bg-rose-50 {
+  background-color: rgba(136, 19, 55, 0.3) !important;
+  color: #FDA4AF !important;
+}
+
+.dark .bg-blue-50 {
+  background-color: rgba(30, 58, 138, 0.3) !important;
+  color: #93C5FD !important;
+}
+
+.dark .bg-purple-50 {
+  background-color: rgba(88, 28, 135, 0.3) !important;
+  color: #D8B4FE !important;
+}

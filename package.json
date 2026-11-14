@@ -1,0 +1,40 @@
+{
+  "name": "absensidigital",
+  "version": "1.0.0",
+  "description": "Aplikasi Absensi Digital QR Code Siswa SDN Pengampon 3 Kota Cirebon",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "server": "node server/index.js",
+    "test": "node --test test/*.test.js",
+    "build": "cd client && npm run build",
+    "client": "cd client && npm run dev",
+    "seed": "node server/db.js"
+  },
+  "keywords": [
+    "absensi",
+    "sekolah",
+    "qr-code",
+    "pwa",
+    "sdn-pengampon-3"
+  ],
+  "author": "Antigravity Programmer",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "archiver": "^8.0.0",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.6.2",
+    "cors": "^2.8.5",
+    "docx": "^9.15.3",
+    "express": "^5.2.1",
+    "heic-convert": "^2.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "mysql2": "^3.24.6",
+    "pdfkit": "^0.20.2",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.35.5"
+  }
+}
