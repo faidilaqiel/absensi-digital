@@ -82,12 +82,12 @@ Aplikasi dapat dibuka di browser melalui:
 |---|---|---|---|
 | **Petugas Piket** | `petugas` | `petugas123` | Langsung diarahkan ke kamera pemindai QR di HP |
 | **Administrator** | `admin` | `admin123` | Akses penuh seluruh fitur & cetak kartu |
-| **Wali Kelas 2A** | `guru` | `guru123` | Akses monitoring khusus Kelas 2A |
+| **Wali Kelas** | `Nama Depan Guru` | `Nama Depan Guru123` | Akses monitoring Guru |
 | **Kepala Sekolah** | `kepsek` | `kepsek123` | Monitoring statistik sekolah & reward siswa |
 
 ---
 
-## 🏛️ Struktur 7 Rombongan Belajar (Rombel) Resmi
+## 🏛️ Struktur 7 Rombongan Belajar (Rombel)
 1. **Kelas 1** - Wali Kelas: Rizky Yulianti, S.Pd.SD. (35 Siswa)
 2. **Kelas 2A** - Wali Kelas: Elis Susilawati, S.Pd. (23 Siswa)
 3. **Kelas 2B** - Wali Kelas: Ahmad, S.Pd. (23 Siswa)
