@@ -138,7 +138,7 @@ export default function DashboardPage({ setActiveTab, selectedAY: propSelectedAY
     setLoadingStatusStudents(true);
     try {
       let url = `/dashboard/status-students?status=${config.statusType}&date=${selectedDate}`;
-      if (selectedAY) url += `&academic_year_id=${selectedAY}`;
+      if (activeAYId) url += `&academic_year_id=${activeAYId}`;
       const res = await apiRequest(url);
       setStatusStudents(res.students || []);
     } catch (err) {
