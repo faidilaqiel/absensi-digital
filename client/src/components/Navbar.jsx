@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SchoolLogo from './SchoolLogo';
 import {
   Wifi, WifiOff, RefreshCw, LogOut, Moon, Sun, Calendar, Menu, X,
   LayoutDashboard, QrCode, Users, GraduationCap, CreditCard,
-  CalendarCheck, FileQuestion, Award, UserCog, Settings as SettingsIcon, ChevronDown
+  CalendarCheck, FileQuestion, Award, UserCog, Settings as SettingsIcon, ChevronDown, Clock
 } from 'lucide-react';
 
 export default function Navbar({
@@ -24,6 +24,27 @@ export default function Navbar({
   userRole,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Live Clock Real-Time WIB (Asia/Jakarta)
+  const [currentTimeWIB, setCurrentTimeWIB] = useState('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      setCurrentTimeWIB(`${timeStr} WIB`);
+    };
+
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const roleLabels = {
     admin: { label: 'Administrator', bg: 'bg-[#16423C]/10 text-[#16423C] border-[#16423C]/20' },
@@ -80,7 +101,7 @@ export default function Navbar({
               </div>
             </div>
 
-            {/* Desktop: Right Controls (TA, Dark Mode, Online, User, Logout) */}
+            {/* Desktop: Right Controls (TA, Jam WIB, Dark Mode, Online, User, Logout) */}
             <div className="hidden lg:flex items-center gap-2 sm:gap-3">
               {/* Dropdown Tahun Ajaran */}
               {academicYears && academicYears.length > 0 && (
@@ -97,6 +118,13 @@ export default function Navbar({
                   </select>
                 </div>
               )}
+
+              {/* Jam Dunia (WIB) Live - Tampil di Semua Halaman/Dashboard */}
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-[#16423C] bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                <Clock className="w-3.5 h-3.5 text-[#16423C] shrink-0" />
+                <span>{currentTimeWIB || '...'}</span>
+              </div>
 
               {/* Dark Mode Toggle */}
               <button onClick={onToggleDarkMode} className={`p-2 rounded-xl border transition-all cursor-pointer ${darkMode ? 'bg-amber-500/15 border-amber-400/30 text-amber-400' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'}`}>
@@ -149,9 +177,9 @@ export default function Navbar({
             </button>
           </div>
 
-          {/* Row 2 (Mobile Only): TA + Refresh + Online Badge sejajar dalam 1 baris */}
+          {/* Row 2 (Mobile Only): TA + Jam WIB + Refresh + Online Badge sejajar dalam 1 baris */}
           <div className="lg:hidden flex items-center justify-between gap-2 pb-2 -mt-0.5">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
               {/* Dropdown Tahun Ajaran */}
               {academicYears && academicYears.length > 0 && (
                 <div className="flex items-center gap-1 bg-[#16423C]/10 border border-[#16423C]/20 px-2 py-1 rounded-lg text-[11px]">
@@ -168,6 +196,13 @@ export default function Navbar({
                   <ChevronDown className="w-3 h-3 text-[#16423C] shrink-0" />
                 </div>
               )}
+
+              {/* Jam WIB Mobile */}
+              <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-[#16423C] bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                <Clock className="w-3 h-3 text-[#16423C] shrink-0" />
+                <span>{currentTimeWIB || '...'}</span>
+              </div>
 
               {/* Tombol Refresh */}
               <button onClick={onSyncOffline ? onSyncOffline : () => window.location.reload()}

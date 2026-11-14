@@ -185,29 +185,21 @@ export default function DashboardPage({ setActiveTab, selectedAY: propSelectedAY
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Date Picker & Jam Dunia (WIB) Live - Sejajar Vertikal Penuh */}
-          <div className="flex flex-col items-stretch w-44">
-            <div className="flex items-center gap-1.5 bg-[#F8F9FA] border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-full">
-              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent font-semibold text-slate-700 focus:outline-none cursor-pointer w-full"
-              />
-            </div>
-            {/* Jam Dunia / Waktu Indonesia Barat (WIB) Tepat Sejajar di Bawah Tanggal */}
-            <div className="flex items-center justify-center gap-1.5 mt-1 text-[11px] font-mono font-bold text-[#16423C] bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-200/80 shadow-2xs w-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-              <Clock className="w-3 h-3 text-[#16423C] shrink-0" />
-              <span>{currentTimeWIB || 'Memuat jam...'}</span>
-            </div>
+          {/* Date Picker Tanggal Dashboard */}
+          <div className="flex items-center gap-1.5 bg-[#F8F9FA] border border-slate-200 rounded-xl px-3 py-1.5 text-xs">
+            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="bg-transparent font-semibold text-slate-700 focus:outline-none cursor-pointer"
+            />
           </div>
 
           <button
             onClick={loadDashboard}
             title="Muat Ulang Data"
-            className="p-2.5 text-slate-600 hover:text-[#16423C] bg-[#F8F9FA] hover:bg-slate-100 border border-slate-200 rounded-xl transition cursor-pointer self-start"
+            className="p-2.5 text-slate-600 hover:text-[#16423C] bg-[#F8F9FA] hover:bg-slate-100 border border-slate-200 rounded-xl transition cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
