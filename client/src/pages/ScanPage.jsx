@@ -96,20 +96,42 @@ export default function ScanPage({ isOnline, onQueueUpdate, isKioskMode, onToggl
         aspectRatio: 1.0,
       };
 
-      await html5QrCodeRef.current.start(
-        { facingMode: cameraFacing },
-        config,
-        (decodedText) => {
-          handleScanSuccess(decodedText);
-        },
-        (errorMessage) => {
-          // Ignore frequent frame-scanning errors
+      // Coba buka dengan facingMode terlebih dahulu (kamera belakang / depan)
+      try {
+        await html5QrCodeRef.current.start(
+          { facingMode: cameraFacing },
+          config,
+          (decodedText) => {
+            handleScanSuccess(decodedText);
+          },
+          () => {}
+        );
+      } catch (facingErr) {
+        // Fallback: Jika facingMode gagal (biasa terjadi di beberapa webcam laptop Windows),
+        // minta daftar semua video input camera devices dan pakai camera pertama
+        console.warn('Facing mode start failed, falling back to camera devices list:', facingErr);
+        const cameras = await Html5Qrcode.getCameras();
+        if (cameras && cameras.length > 0) {
+          await html5QrCodeRef.current.start(
+            cameras[0].id,
+            config,
+            (decodedText) => {
+              handleScanSuccess(decodedText);
+            },
+            () => {}
+          );
+        } else {
+          throw facingErr;
         }
-      );
+      }
+
       setIsScanning(true);
     } catch (err) {
       console.error('Camera start error:', err);
-      setScanError('Tidak dapat membuka kamera. Pastikan izin kamera telah diberikan di browser HP Anda.');
+      setScanError({
+        errorCode: 'CAMERA_ERROR',
+        message: 'Tidak dapat membuka kamera. Pastikan izin kamera telah diizinkan di browser atau gunakan kolom ketik NISN / Scanner USB di bawah.'
+      });
       setIsScanning(false);
     }
   };
