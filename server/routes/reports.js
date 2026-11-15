@@ -29,7 +29,7 @@ router.get('/recap', authenticateToken, (req, res) => {
     const classes = db.prepare(classQuery).all(...params);
 
     const result = classes.map(cls => {
-      const studentCount = db.prepare('SELECT COUNT(*) as count FROM students WHERE class_id = ? AND status = "active"').get(cls.id).count;
+      const studentCount = db.prepare("SELECT COUNT(*) as count FROM students WHERE class_id = ? AND status = 'active'").get(cls.id).count;
 
       const stats = db.prepare(`
         SELECT 
