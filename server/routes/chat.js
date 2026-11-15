@@ -24,6 +24,16 @@ if (!envApiKey) {
 
 const GEMINI_API_KEY = envApiKey;
 
+// Helper koneksi MySQL
+async function getMySQLConnection() {
+  return await mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'absensi_sdnp3'
+  });
+}
+
 // Helper mengambil tanggal hari ini format YYYY-MM-DD lokal WIB
 function getLocalDateString() {
   const d = new Date();
@@ -574,6 +584,15 @@ Data di atas adalah kondisi nyata detik ini di SDN Pengampon 3. Gunakan data ter
     // Fallback cerdas bebas tanda bintang (plain text) jika koneksi internet/API offline
     try {
       const pesanLower = (req.body.pesan || '').toLowerCase();
+
+      // CEK PERTANYAAN DI LUAR KONTEKS SEKOLAH TERLEBIH DAHULU (GUARDRAIL FALLBACK)
+      const isOutOfContext = /presiden|pemilu|politik|menteri|ibukota|resep|masak|sejarah indonesia|penjajahan|film|artis|lagu|game|olahraga|sepak bola|cuaca dunia|astronomi|luar angkasa/i.test(pesanLower);
+      if (isOutOfContext) {
+        return res.json({
+          jawaban: 'Maaf Bapak/Ibu, saya adalah asisten khusus absensi sekolah. Saya tidak dapat menjawab pertanyaan di luar topik kehadiran siswa atau informasi sekolah.'
+        });
+      }
+
       if (pesanLower.includes('wali kelas') || pesanLower.includes('guru kelas')) {
         // Deteksi kelas dari pesan
         let matchKelas = '1';
