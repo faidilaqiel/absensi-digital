@@ -49,7 +49,7 @@ router.get('/', authenticateToken, (req, res) => {
 });
 
 // POST /api/permits (Catat izin / sakit / alpa)
-router.post('/', authenticateToken, authorizeRoles('admin', 'petugas', 'guru'), (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('admin', 'petugas', 'guru'), async (req, res) => {
   try {
     const { student_id, date, status, notes } = req.body;
 
@@ -74,21 +74,47 @@ router.post('/', authenticateToken, authorizeRoles('admin', 'petugas', 'guru'), 
 
     // Check existing
     const existing = db.prepare('SELECT * FROM attendances WHERE student_id = ? AND date = ?').get(student_id, attDate);
+    let recordId;
     if (existing) {
       db.prepare(`
         UPDATE attendances
         SET status = ?, notes = ?, recorded_by_user_id = ?, recorded_by_name = ?, method = 'manual_authorized'
         WHERE id = ?
       `).run(status, notes || '', req.user.id, req.user.name, existing.id);
-
-      return res.json({ message: `Status ketidakhadiran ${student.name} berhasil diperbarui menjadi ${status.toUpperCase()}.` });
+      recordId = existing.id;
+    } else {
+      const activeAY = db.prepare("SELECT id FROM academic_years WHERE is_active = 1").get();
+      const ayId = activeAY ? activeAY.id : null;
+      const info = db.prepare(`
+        INSERT INTO attendances (student_id, class_id, date, time, status, notes, recorded_by_user_id, recorded_by_name, method, academic_year_id)
+        VALUES (?, ?, ?, '07:00:00', ?, ?, ?, ?, 'manual_authorized', ?)
+      `).run(student.id, student.class_id, attDate, status, notes || '', req.user.id, req.user.name, ayId);
+      recordId = info.lastInsertRowid;
     }
 
-    db.prepare(`
-      INSERT INTO attendances (student_id, class_id, date, time, status, notes, recorded_by_user_id, recorded_by_name, method)
-      VALUES (?, ?, ?, '07:00:00', ?, ?, ?, ?, 'manual_authorized')
-    `).run(student.id, student.class_id, attDate, status, notes || '', req.user.id, req.user.name);
+    // Sync real-time ke MySQL jika terhubung
+    try {
+      const mysql = require('mysql2/promise');
+      const conn = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: '',
+        database: 'absensi_sdnp3'
+      });
+      await conn.query(
+        `INSERT INTO attendances (id, student_id, class_id, date, time, status, notes, recorded_by_user_id, recorded_by_name, method)
+         VALUES (?, ?, ?, ?, '07:00:00', ?, ?, ?, ?, 'manual_authorized')
+         ON DUPLICATE KEY UPDATE status = VALUES(status), notes = VALUES(notes), recorded_by_user_id = VALUES(recorded_by_user_id), recorded_by_name = VALUES(recorded_by_name)`,
+        [recordId, student.id, student.class_id, attDate, status, notes || '', req.user.id, req.user.name]
+      );
+      await conn.end();
+    } catch (mysqlErr) {
+      console.warn('MySQL permits sync warning:', mysqlErr.message);
+    }
 
+    if (existing) {
+      return res.json({ message: `Status ketidakhadiran ${student.name} berhasil diperbarui menjadi ${status.toUpperCase()}.` });
+    }
     res.json({ message: `Ketidakhadiran (${status.toUpperCase()}) untuk ${student.name} berhasil dicatat.` });
   } catch (err) {
     res.status(500).json({ error: err.message });

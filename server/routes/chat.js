@@ -85,13 +85,13 @@ const tools = [
       },
       {
         name: 'getSiswaByStatus',
-        description: 'Gunakan fungsi ini jika user bertanya siapa saja siswa yang Alpa, Izin, Sakit, atau Terlambat hari ini.',
+        description: 'Gunakan fungsi ini jika user bertanya tentang siswa yang Alpa, Izin, Sakit, atau Terlambat hari ini, baik bertanya siapa saja namanya maupun bertanya berapa jumlah siswanya.',
         parameters: {
           type: 'OBJECT',
           properties: {
             status: {
               type: 'STRING',
-              description: 'Status kehadiran: "Alpa", "Izin", "Sakit", atau "Terlambat"'
+              description: 'Status kehadiran: "Alpa", "Izin", "Sakit", "Terlambat", atau "Dispensasi"'
             }
           },
           required: ['status']
@@ -99,7 +99,7 @@ const tools = [
       },
       {
         name: 'getStatistikHariIni',
-        description: 'Gunakan fungsi ini jika user bertanya ringkasan total kehadiran hari ini (Berapa hadir, berapa alpa, dll).'
+        description: 'Gunakan fungsi ini jika user bertanya ringkasan/rekapitulasi total kehadiran hari ini (Berapa hadir, berapa izin, berapa sakit, berapa alpa, berapa belum absen).'
       }
     ]
   }
@@ -118,8 +118,10 @@ ATURAN MUTLAK & BATASAN TOPIK:
 ATURAN DATA & FORMAT JAWABAN RESMI:
 1. JANGAN PERNAH MENGARANG DATA.
 2. DILARANG MENGARANG nama guru/wali kelas. Jika user bertanya tentang wali kelas atau guru kelas, kamu WAJIB memanggil fungsi getWaliKelas. Jika data tidak ditemukan di database, katakan dengan jujur bahwa data belum diinput.
-3. Jika user bertanya tentang rombel, siswa per kelas, siswa alpa/izin/sakit, atau siswa belum absen, KAMU WAJIB memanggil fungsi (tools) yang sesuai.
-4. WAJIB MENYEBUTKAN SEMUA NAMA SISWA SATU PER SATU TANPA TERKECUALI:
+3. Jika user bertanya tentang rombel, siswa per kelas, siswa alpa/izin/sakit, berapa siswa yang izin/sakit/alpa/hadir, atau siswa belum absen, KAMU WAJIB memanggil fungsi (tools) yang sesuai: getSiswaByStatus atau getStatistikHariIni.
+4. Perhatikan pembedaan status ketidakhadiran di sistem:
+   - Jika user bertanya tentang "izin" namun data izin 0 sedangkan ada data "sakit", sebutkan bahwa izin tercatat 0 siswa, tetapi jelaskan secara informatif bahwa ada siswa yang tercatat berhalangan karena Sakit beserta rincian nama dan kelasnya dari data database.
+5. WAJIB MENYEBUTKAN SEMUA NAMA SISWA SATU PER SATU TANPA TERKECUALI:
    - Jika ada siswa yang belum absen atau berada di suatu kategori, sebutkan SEMUA nama siswa tersebut secara lengkap dan berurutan!
    - DILARANG menggunakan kata "dan X siswa lainnya", "dan seterusnya", atau memotong/meringkas daftar nama. Semua nama dari database harus tertulis!
 5. FORMAT DAFTAR HARUS RAPI:
@@ -259,48 +261,59 @@ async function executeDatabaseFunction(name, args) {
 
     if (name === 'getSiswaByStatus') {
       const rawStatus = String(args.status || '').trim();
-      let statusMap = rawStatus;
-      if (/alpa/i.test(rawStatus)) statusMap = 'Alpa';
-      else if (/izin/i.test(rawStatus)) statusMap = 'Izin';
-      else if (/sakit/i.test(rawStatus)) statusMap = 'Sakit';
-      else if (/terlambat/i.test(rawStatus)) statusMap = 'Terlambat';
-      else if (/hadir/i.test(rawStatus)) statusMap = 'Hadir';
+      let statusMap = rawStatus.toLowerCase();
+      if (/alpa/i.test(rawStatus)) statusMap = 'alpa';
+      else if (/izin/i.test(rawStatus)) statusMap = 'izin';
+      else if (/sakit/i.test(rawStatus)) statusMap = 'sakit';
+      else if (/terlambat/i.test(rawStatus)) statusMap = 'terlambat';
+      else if (/hadir/i.test(rawStatus)) statusMap = 'hadir';
 
       const [rows] = await conn.query(
-        `SELECT s.name AS nama, c.name AS kelas, a.time, a.status
+        `SELECT s.name AS nama, c.name AS kelas, a.time, a.status, a.notes
          FROM students s
          JOIN classes c ON s.class_id = c.id
          JOIN attendances a ON s.id = a.student_id
-         WHERE a.status = ? AND a.date = CURDATE()
+         WHERE LOWER(a.status) = ? AND (a.date = CURDATE() OR a.date = DATE(NOW()) OR a.date = DATE_FORMAT(NOW(), '%Y-%m-%d'))
          ORDER BY c.level, s.name ASC`,
         [statusMap]
       );
 
+      // Cari juga info status sakit/izin lainnya jika user menanyakan izin tapi data di database sakit
+      const [otherAbsence] = await conn.query(
+        `SELECT a.status, COUNT(*) as count FROM attendances a 
+         WHERE (a.date = CURDATE() OR a.date = DATE(NOW())) AND a.status IN ('izin', 'sakit', 'alpa')
+         GROUP BY a.status`
+      );
+
       return {
-        status: statusMap,
+        status_yang_dicari: statusMap,
         total: rows.length,
-        daftar_semua_siswa: rows.map((r, i) => `${i + 1}. ${r.nama} (${r.kelas})`)
+        daftar_semua_siswa: rows.map((r, i) => `${i + 1}. ${r.nama} (${r.kelas})${r.notes ? ` - Ket: ${r.notes}` : ''}`),
+        keterangan_status_lain: otherAbsence.map(o => `${o.status.toUpperCase()}: ${o.count} siswa`).join(', ')
       };
     }
 
     if (name === 'getStatistikHariIni') {
       const [stats] = await conn.query(
-        `SELECT status, COUNT(*) as jumlah FROM attendances WHERE date = CURDATE() GROUP BY status`
+        `SELECT status, COUNT(*) as jumlah FROM attendances WHERE (date = CURDATE() OR date = DATE(NOW())) GROUP BY status`
       );
       const [totalActive] = await conn.query(
         `SELECT COUNT(*) as total FROM students WHERE status = 'active'`
       );
       const [attended] = await conn.query(
-        `SELECT COUNT(DISTINCT student_id) as total FROM attendances WHERE date = CURDATE()`
+        `SELECT COUNT(DISTINCT student_id) as total FROM attendances WHERE (date = CURDATE() OR date = DATE(NOW())) AND status = 'hadir'`
       );
       const totalSiswa = totalActive[0]?.total || 0;
       const totalHadir = attended[0]?.total || 0;
       return {
         tanggal: new Date().toISOString().split('T')[0],
         total_siswa_terdaftar: totalSiswa,
-        sudah_absen: totalHadir,
-        belum_absen: Math.max(0, totalSiswa - totalHadir),
-        rincian_status: stats
+        sudah_hadir: totalHadir,
+        rincian_kehadiran: stats.reduce((acc, curr) => {
+          acc[curr.status] = curr.jumlah;
+          return acc;
+        }, {}),
+        belum_absen: Math.max(0, totalSiswa - (stats.reduce((sum, s) => sum + s.jumlah, 0)))
       };
     }
 
@@ -347,6 +360,38 @@ async function executeDatabaseFunction(name, args) {
           filter_kelas: paramKelas || 'Semua Kelas',
           total_belum_absen: rows.length,
           daftar_semua_siswa: rows.map((r, i) => `${i + 1}. ${r.nama} (${r.kelas})`)
+        };
+      }
+      if (name === 'getSiswaByStatus') {
+        const today = new Date().toISOString().split('T')[0];
+        const rawStatus = String(args.status || '').trim();
+        let statusMap = rawStatus.toLowerCase();
+        if (/alpa/i.test(rawStatus)) statusMap = 'alpa';
+        else if (/izin/i.test(rawStatus)) statusMap = 'izin';
+        else if (/sakit/i.test(rawStatus)) statusMap = 'sakit';
+        else if (/terlambat/i.test(rawStatus)) statusMap = 'terlambat';
+        else if (/hadir/i.test(rawStatus)) statusMap = 'hadir';
+
+        const rows = db.prepare(`
+          SELECT s.name AS nama, c.name AS kelas, a.time, a.status, a.notes
+          FROM students s
+          JOIN classes c ON s.class_id = c.id
+          JOIN attendances a ON s.id = a.student_id
+          WHERE LOWER(a.status) = ? AND a.date = ?
+          ORDER BY c.level, s.name ASC
+        `).all(statusMap, today);
+
+        const otherAbsence = db.prepare(`
+          SELECT a.status, COUNT(*) as count FROM attendances a 
+          WHERE a.date = ? AND a.status IN ('izin', 'sakit', 'alpa')
+          GROUP BY a.status
+        `).all(today);
+
+        return {
+          status_yang_dicari: statusMap,
+          total: rows.length,
+          daftar_semua_siswa: rows.map((r, i) => `${i + 1}. ${r.nama} (${r.kelas})${r.notes ? ` - Ket: ${r.notes}` : ''}`),
+          keterangan_status_lain: otherAbsence.map(o => `${o.status.toUpperCase()}: ${o.count} siswa`).join(', ')
         };
       }
       if (name === 'getStatistikHariIni') {
