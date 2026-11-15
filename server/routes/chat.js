@@ -24,14 +24,56 @@ if (!envApiKey) {
 
 const GEMINI_API_KEY = envApiKey;
 
-// Helper koneksi MySQL
-async function getMySQLConnection() {
-  return await mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'absensi_sdnp3'
-  });
+// Helper mengambil tanggal hari ini format YYYY-MM-DD lokal WIB
+function getLocalDateString() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// Helper live snapshot data real-time langsung dari database
+function getRealtimeAttendanceContext() {
+  try {
+    const today = getLocalDateString();
+    const stats = db.prepare(`
+      SELECT status, COUNT(*) as jumlah 
+      FROM attendances 
+      WHERE date = ? 
+      GROUP BY status
+    `).all(today);
+
+    const nonHadir = db.prepare(`
+      SELECT a.status, s.name, c.name as kelas, a.notes, a.time
+      FROM attendances a
+      JOIN students s ON a.student_id = s.id
+      JOIN classes c ON s.class_id = c.id
+      WHERE a.date = ? AND a.status IN ('sakit', 'izin', 'alpa')
+      ORDER BY a.status, c.level, s.name ASC
+    `).all(today);
+
+    const totalActive = db.prepare("SELECT COUNT(*) as total FROM students WHERE status = 'active'").get()?.total || 224;
+    const hadirCount = stats.find(s => s.status === 'hadir')?.jumlah || 0;
+    const sakitCount = stats.find(s => s.status === 'sakit')?.jumlah || 0;
+    const izinCount = stats.find(s => s.status === 'izin')?.jumlah || 0;
+    const alpaCount = stats.find(s => s.status === 'alpa')?.jumlah || 0;
+    const belumAbsenCount = Math.max(0, totalActive - hadirCount - sakitCount - izinCount - alpaCount);
+
+    return {
+      tanggal_hari_ini: today,
+      total_siswa_sekolah: totalActive,
+      hadir: hadirCount,
+      sakit: sakitCount,
+      izin: izinCount,
+      alpa: alpaCount,
+      belum_absen: belumAbsenCount,
+      daftar_siswa_tidak_hadir: nonHadir.map((s, i) => `${i + 1}. [${s.status.toUpperCase()}] ${s.name} (${s.kelas})${s.notes ? ` - Alasan: ${s.notes}` : ''}`)
+    };
+  } catch (err) {
+    console.error('Error getRealtimeAttendanceContext:', err);
+    return null;
+  }
 }
 
 // 1. Definisi Tools (Fungsi Database)
@@ -421,12 +463,29 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Input pesan atau gambar tidak boleh kosong.' });
     }
 
+    // Ambil ringkasan kehadiran live real-time saat ini dari database
+    const liveContext = getRealtimeAttendanceContext();
+
+    const dynamicSystemInstruction = `${systemInstruction}
+
+DATA KEHADIRAN LIVE REAL-TIME HARI INI (${liveContext?.tanggal_hari_ini || 'Hari Ini'}):
+- Total Siswa Aktif: ${liveContext?.total_siswa_sekolah || 224} siswa
+- Sudah Hadir (Tepat Waktu/Terlambat): ${liveContext?.hadir || 0} siswa
+- Sakit: ${liveContext?.sakit || 0} siswa
+- Izin: ${liveContext?.izin || 0} siswa
+- Alpa: ${liveContext?.alpa || 0} siswa
+- Belum Melakukan Absensi: ${liveContext?.belum_absen || 0} siswa
+${liveContext?.daftar_siswa_tidak_hadir && liveContext.daftar_siswa_tidak_hadir.length > 0 ? `- Rincian Siswa Tidak Hadir (Sakit/Izin/Alpa):\n  ${liveContext.daftar_siswa_tidak_hadir.join('\n  ')}` : '- Tidak ada siswa yang tercatat sakit, izin, atau alpa hari ini.'}
+
+PENTING TENTANG REALTIME:
+Data di atas adalah kondisi nyata detik ini di SDN Pengampon 3. Gunakan data tersebut secara langsung atau panggil fungsi database (tools) untuk mendapatkan daftar lengkap nama-nama siswa. Jika user bertanya "ada berapa siswa izin", jelaskan sesuai data di atas (misal izin 0, tetapi ada 1 yang sakit, sebutkan nama dan alasannya).`;
+
     // Inisialisasi GoogleGenerativeAI
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
       model: 'gemini-3.5-flash-lite',
       tools: tools,
-      systemInstruction: systemInstruction
+      systemInstruction: dynamicSystemInstruction
     });
 
     // JIKA USER MENGUNGGAH GAMBAR (VISION MODE)
