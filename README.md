@@ -1,3 +1,10 @@
+**Nama: Faidil Aqiel**
+**NIM: 41257189**
+**Kelas: Reg Sore / 1F-2025**
+**Prodi: Teknik Informatika**
+Link Video:
+
+
 # Aplikasi Absensi Digital SDN Pengampon 3 Kota Cirebon
 
 Aplikasi Sistem Informasi Absensi Siswa berbasis pemindaian QR Code pada kartu identitas siswa untuk kedatangan pagi hari di **SDN Pengampon 3 Kota Cirebon**, dioptimalkan untuk perangkat smartphone sekolah maupun desktop/tablet.
