@@ -2,7 +2,7 @@
 **NIM: 41257189**
 **Kelas: Reg Sore / 1F-2025**
 **Prodi: Teknik Informatika**
-Link Video:
+Link Video: https://drive.google.com/drive/folders/19BHRaDuz3MewwQFG-pHE_T280Ec8diLn?usp=sharing
 
 
 # Aplikasi Absensi Digital SDN Pengampon 3 Kota Cirebon
