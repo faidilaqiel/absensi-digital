@@ -1,6 +1,6 @@
 # Aplikasi Absensi Digital SDN Pengampon 3 Kota Cirebon
 
-Aplikasi Sistem Informasi Absensi Siswa berbasis pemindaian QR Code pada kartu identitas siswa untuk kedatangan pagi hari di **SDN Pengampon 3 Kota Cirebon**, dioptimalkan untuk perangkat smartphone sekolah (**Samsung Galaxy A56**) maupun desktop/tablet.
+Aplikasi Sistem Informasi Absensi Siswa berbasis pemindaian QR Code pada kartu identitas siswa untuk kedatangan pagi hari di **SDN Pengampon 3 Kota Cirebon**, dioptimalkan untuk perangkat smartphone sekolah maupun desktop/tablet.
 
 ---
 
@@ -16,7 +16,7 @@ Aplikasi Sistem Informasi Absensi Siswa berbasis pemindaian QR Code pada kartu i
    - **Aktivitas Scan Terbaru**: Live feed konfirmasi kehadiran siswa dari gerbang sekolah.
    - **Kandidat Reward Bulanan**: Siswa terajin yang datang paling awal di bulan berjalan.
 
-2. **Pemindai Barcode / QR Code (Dioptimalkan untuk HP Samsung Galaxy A56)**
+2. **Pemindai Barcode / QR Code**
    - Pemindaian kamera berkecepatan tinggi (< 2 detik) menggunakan kamera belakang (*environment*) atau kamera depan.
    - **Audio Synthesizer Real-time**: Chime nada ceria untuk hadir tepat waktu, nada peringatan untuk terlambat, dan buzzer untuk tolak absensi ganda.
    - **Animasi Visual & Confetti**: Konfirmasi instan menampilkan foto siswa, nama, NISN, rombel, jam kedatangan, dan status.
